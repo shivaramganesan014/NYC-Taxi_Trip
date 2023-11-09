@@ -9,6 +9,8 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import java.util.Properties;
+
 /**
  * Hello world!
  *
@@ -23,6 +25,8 @@ public class App
     public static Configuration config = context.hadoopConfiguration();
 
     public static SparkSession spark = SparkSession.builder().getOrCreate();
+
+    public static Properties props = new Properties();
     public static void main( String[] args )
     {
 //        Dataset<Row> parquetFile = spark.read().parquet(filePath);
@@ -31,13 +35,20 @@ public class App
 //        Dataset<Row> rows = spark.sql("select * from tempView");
 //        rows.show();
 
-        Dataset<Row> rows = TimeSeriesUtil.getInRange("2022-06-12 2:00:00", "2022-07-12 1:00:00");
-        if(rows != null){
-            rows.show();
-        }
-        else {
-            System.out.println("Empty Dataset returned");
-        }
+        props.setProperty("Driver", "org.postgresql.Driver");
+
+        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
+        rows.show();
+
+//        Dataset<Row> rows = TimeSeriesUtil.getInRange("tpep_pickup_datetime", "2022-06-12 2:00:00", "2022-07-12 1:00:00");
+//        if(rows != null){
+//            rows = rows.filter("passenger_count = 0");
+//            rows.show();
+//        }
+//        else {
+//            System.out.println("Empty Dataset returned");
+//        }
+
 
 
 //        JavaRDD<String> lines = sc.textFile("hdfs://localhost:9000/input/2023/jan.parquet");

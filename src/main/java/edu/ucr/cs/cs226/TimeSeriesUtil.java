@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TimeSeriesUtil {
 
-    public static Dataset<Row> getInRange(String from, String to){
+    public static Dataset<Row> getInRange(String col, String from, String to){
         //date format: yyyy-mm-dd hh:mm:ss
         int fromYear = getYear(from);
         int toYear = getYear(to);
@@ -35,17 +35,17 @@ public class TimeSeriesUtil {
                     System.out.println("error while reading file :: " + name + " :: " + "skipping");
                     continue;
                 }
-                System.out.println("shiva :: curr year :: " + currYear);
-                System.out.println("shiva :: from and to year :: " + fromYear + " :: " + toYear);
+//                System.out.println("shiva :: curr year :: " + currYear);
+//                System.out.println("shiva :: from and to year :: " + fromYear + " :: " + toYear);
                 if(currYear >= fromYear && currYear <= toYear){
                     String currPath = filePath+"/"+name+"/";
-                    System.out.println("shiva :: reading " + currPath);
+//                    System.out.println("shiva :: reading " + currPath);
                     RemoteIterator<LocatedFileStatus> monthlyData = fs.listFiles(new Path(currPath), false);
                     while(monthlyData.hasNext()){
                         String fName = monthlyData.next().getPath().getName();
-                        System.out.println("shiva :: reading :: " + fName);
+//                        System.out.println("shiva :: reading :: " + fName);
                         Query q = new Query();
-                        q.setFilter("tpep_pickup_datetime >= \'"+from + "\' and tpep_pickup_datetime <= \'" + to + "\'");
+                        q.setFilter(col+" >= \'"+from + "\' and "+col+" <= \'" + to + "\'");
                         Dataset<Row> yearRows = getDataset(currPath+fName, q);
                         if(rows == null){
                             rows = yearRows;
