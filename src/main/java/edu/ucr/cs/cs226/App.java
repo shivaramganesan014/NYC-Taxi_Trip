@@ -37,8 +37,12 @@ public class App
 
         props.setProperty("Driver", "org.postgresql.Driver");
 
-        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
+//        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
+//        Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration();
+        Dataset<Row> rows = TimeSeriesUtil.getDistanceWithNoPassenger();
         rows.show();
+
+
 
 //        Dataset<Row> rows = TimeSeriesUtil.getInRange("tpep_pickup_datetime", "2022-06-12 2:00:00", "2022-07-12 1:00:00");
 //        if(rows != null){
