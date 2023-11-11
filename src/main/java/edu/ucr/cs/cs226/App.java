@@ -8,8 +8,13 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.Iterator;
 import java.util.Properties;
+
+import static spark.Spark.*;
 
 /**
  * Hello world!
@@ -37,10 +42,23 @@ public class App
 
         props.setProperty("Driver", "org.postgresql.Driver");
 
+        get("/test", (request, response) -> {
+            Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount();
+            Iterator<Row> itr = rows.toLocalIterator();
+            JSONArray res = new JSONArray();
+            while(itr.hasNext()){
+                res.put(new JSONObject(itr.next().json()));
+            }
+//            return rows.toJSON();
+            return res.toString();
+        });
+
 //        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
 //        Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration();
-        Dataset<Row> rows = TimeSeriesUtil.getDistanceWithNoPassenger();
-        rows.show();
+//        Dataset<Row> rows = TimeSeriesUtil.getDistanceWithNoPassenger();
+//        rows.toString();
+
+//        rows.show();
 
 
 

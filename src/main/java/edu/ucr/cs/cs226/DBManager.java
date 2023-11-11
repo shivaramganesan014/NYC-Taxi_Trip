@@ -3,6 +3,7 @@ package edu.ucr.cs.cs226;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.json.JSONObject;
 
 import java.util.Properties;
 
@@ -20,6 +21,12 @@ public class DBManager {
                 .option("password", "shiva")
                 .option("query", query)
                 .load();
+    }
+
+    public static String toJSON(Row r){
+//        JSONObject json = new JSONObject();
+        return r.toString();
+//        return json;
     }
 
 
