@@ -36,7 +36,7 @@ public class TimeSeriesUtil {
         return DBManager.getDataset(query.toString());
     }
     public static Dataset<Row> getPassengerCountVsTipAmount(){
-        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\'");
+        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\' limit 10");
         return DBManager.getDataset(query.toString());
     }
 

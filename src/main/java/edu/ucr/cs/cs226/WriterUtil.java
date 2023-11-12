@@ -13,6 +13,7 @@ public class WriterUtil {
     public static void writeToFile(Dataset<Row> rows, String path){
         deleteDir(new File(path));
         rows.coalesce(1).write().option("header", true).csv(path);
+        PostActions.callPython();
     }
 
     private static boolean deleteDir(File f){
