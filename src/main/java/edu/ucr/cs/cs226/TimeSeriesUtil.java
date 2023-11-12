@@ -28,12 +28,15 @@ public class TimeSeriesUtil {
     order by genseries;
     */
 
+    //average speed of each driver - gorup by vendor id
+
+
     public static Dataset<Row> getTripDistanceVsAmount(){
         StringBuilder query = new StringBuilder("select trip_distance, fare_amount, tip_amount, extra, tolls_amount, total_amount, airport_fee from tripdata limit 10");
         return DBManager.getDataset(query.toString());
     }
     public static Dataset<Row> getPassengerCountVsTipAmount(){
-        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\' limit 10");
+        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\'");
         return DBManager.getDataset(query.toString());
     }
 

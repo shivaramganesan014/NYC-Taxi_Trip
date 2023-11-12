@@ -43,14 +43,15 @@ public class App
         props.setProperty("Driver", "org.postgresql.Driver");
 
         get("/test", (request, response) -> {
-            Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount();
-            Iterator<Row> itr = rows.toLocalIterator();
-            JSONArray res = new JSONArray();
-            while(itr.hasNext()){
-                res.put(new JSONObject(itr.next().json()));
-            }
-//            return rows.toJSON();
-            return res.toString();
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount();
+                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION);
+                }
+            });
+            t.start();
+            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
         });
 
 //        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
