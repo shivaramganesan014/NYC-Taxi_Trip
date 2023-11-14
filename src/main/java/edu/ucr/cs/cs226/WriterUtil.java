@@ -10,9 +10,13 @@ import java.nio.file.Paths;
 
 public class WriterUtil {
 
-    public static void writeToFile(Dataset<Row> rows, String path){
-        deleteDir(new File(path));
-        rows.coalesce(1).write().option("header", true).csv(path);
+    private static final String ANALYSIS_ROOT_DIR = "analysis";
+
+    public static void writeToFile(Dataset<Row> rows, String path, String analysis_id){
+        String writePath = ANALYSIS_ROOT_DIR+"/"+path+"/"+analysis_id;
+        deleteDir(new File(writePath));
+        long x = rows.count();
+        rows.coalesce(5).write().option("header", true).csv(writePath);
         PostActions.callPython();
     }
 

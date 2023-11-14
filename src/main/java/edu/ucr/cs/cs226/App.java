@@ -42,17 +42,53 @@ public class App
 
         props.setProperty("Driver", "org.postgresql.Driver");
 
-        get("/test", (request, response) -> {
+
+        post("/distance_amount_analysis", (request, response) -> {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount();
-                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION);
+                    JSONObject obj = new JSONObject(request.body());
+                    String from = obj.optString("from");
+                    String to = obj.optString("to");
+                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, null);
+                    WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from+"@"+to);
+                }
+            });
+            t.start();
+            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.DISTANCE_AMOUNT_RELATION);
+        });
+
+        post("/count_tip_analysis", (request, response) -> {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject obj = new JSONObject(request.body());
+                    String from = obj.optString("from");
+                    String to = obj.optString("to");
+                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, null);
+                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from+"@"+to);
                 }
             });
             t.start();
             return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
         });
+
+        post("/distance_duration_relation", (request, response) -> {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject obj = new JSONObject(request.body());
+                    String from = obj.optString("from");
+                    String to = obj.optString("to");
+                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, null);
+                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from+"@"+to);
+                }
+            });
+            t.start();
+            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
+        });
+
+
 
 //        Dataset<Row> rows = DBManager.getDataset("select * from \"TripData\" limit 2");
 //        Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration();

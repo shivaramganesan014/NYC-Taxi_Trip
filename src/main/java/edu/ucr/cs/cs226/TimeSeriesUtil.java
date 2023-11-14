@@ -30,14 +30,27 @@ public class TimeSeriesUtil {
 
     //average speed of each driver - gorup by vendor id
 
+    // group by location to find hotspot regions - pickup and dropoff
 
-    public static Dataset<Row> getTripDistanceVsAmount(){
-        StringBuilder query = new StringBuilder("select trip_distance, fare_amount, tip_amount, extra, tolls_amount, total_amount, airport_fee from tripdata limit 10");
-        return DBManager.getDataset(query.toString());
+    public static final String DATE_TIME_FORMAT = "yyyy-mm-dd HH24:mi:ss";
+
+    public static Dataset<Row> getTripDistanceVsAmount(String from, String to, Integer limit){
+        Query q = new Query("tripdata");
+        q.setColumns(new String[]{"trip_distance", "fare_amount", "tip_amount", "extra", "tolls_amount", "total_amount", "airport_fee", "improvement_surcharge", "congestion_surcharge", "mta_tax"});
+        q.addFilter("tpep_pickup_datetime >= \'"+ from + "\'", "and");
+        q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
+        q.setLimit(limit);
+//        StringBuilder query = new StringBuilder("select trip_distance, fare_amount, tip_amount, extra, tolls_amount, total_amount, airport_fee from tripdata limit 10");
+        return DBManager.getDataset(q.toString());
     }
-    public static Dataset<Row> getPassengerCountVsTipAmount(){
-        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\' limit 10");
-        return DBManager.getDataset(query.toString());
+    public static Dataset<Row> getPassengerCountVsTipAmount(String from, String to, Integer limit){
+        Query q = new Query("tripdata");
+        q.setColumns(new String[]{"passenger_count", "tip_amount", "total_amount"});
+        q.addFilter("tpep_pickup_datetime >= \'"+ from + "\'", "and");
+        q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
+        q.setLimit(limit);
+//        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\' limit 10");
+        return DBManager.getDataset(q.toString());
     }
 
     public static Dataset<Row> getDistanceWithNoPassenger(){
@@ -46,9 +59,14 @@ public class TimeSeriesUtil {
         return DBManager.getDataset(query.toString());
     }
 
-    public static Dataset<Row> getTripDistanceVsDuration(){
-        StringBuilder query = new StringBuilder("select trip_distance, to_timestamp(tpep_dropoff_datetime, \'yyyy-mm-dd HH24:mi:ss\') - to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') as duration from tripdata limit 10");
-        return DBManager.getDataset(query.toString());
+    public static Dataset<Row> getTripDistanceVsDuration(String from, String to, Integer limit){
+        Query q = new Query("tripdata");
+        q.setColumns(new String[]{"trip_distance", "to_timestamp(tpep_dropoff_datetime, \'yyyy-mm-dd HH24:mi:ss\') - to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') as duration", "total_amount"});
+        q.addFilter("tpep_pickup_datetime >= \'"+ from + "\'", "and");
+        q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
+        q.setLimit(limit);
+//        StringBuilder query = new StringBuilder("select trip_distance, to_timestamp(tpep_dropoff_datetime, \'yyyy-mm-dd HH24:mi:ss\') - to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') as duration from tripdata limit 10");
+        return DBManager.getDataset(q.toString());
     }
 
 //    public static Dataset<Row> getInRange(String col, String from, String to){
