@@ -44,14 +44,18 @@ public class App
 
 
         post("/distance_amount_analysis", (request, response) -> {
+            JSONObject obj = new JSONObject(request.body());
+            String from = obj.optString("from");
+            String to = obj.optString("to");
+            Dataset<Row> exdf = WriterUtil.getProcess(Constants.DISTANCE_AMOUNT_RELATION, from, to);
+            if(exdf.count() == 1){
+                return "An exisiting analysis is running for the relation for the given time range";
+            }
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject obj = new JSONObject(request.body());
-                    String from = obj.optString("from");
-                    String to = obj.optString("to");
                     Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, null);
-                    WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from+"@"+to);
+                    WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from, to);
                 }
             });
             t.start();
@@ -59,14 +63,18 @@ public class App
         });
 
         post("/count_tip_analysis", (request, response) -> {
+            JSONObject obj = new JSONObject(request.body());
+            String from = obj.optString("from");
+            String to = obj.optString("to");
+            Dataset<Row> exdf = WriterUtil.getProcess(Constants.PASSENGER_TIP_RELATION, from, to);
+            if(exdf.count() == 1){
+                return "An exisiting analysis is running for the relation for the given time range";
+            }
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject obj = new JSONObject(request.body());
-                    String from = obj.optString("from");
-                    String to = obj.optString("to");
                     Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, null);
-                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from+"@"+to);
+                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from, to);
                 }
             });
             t.start();
@@ -74,14 +82,18 @@ public class App
         });
 
         post("/distance_duration_relation", (request, response) -> {
+            JSONObject obj = new JSONObject(request.body());
+            String from = obj.optString("from");
+            String to = obj.optString("to");
+            Dataset<Row> exdf = WriterUtil.getProcess(Constants.DISTANCE_DURATION_RELATION, from, to);
+            if(exdf.count() == 1){
+                return "An exisiting analysis is running for the relation for the given time range";
+            }
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject obj = new JSONObject(request.body());
-                    String from = obj.optString("from");
-                    String to = obj.optString("to");
                     Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, null);
-                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from+"@"+to);
+                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from, to);
                 }
             });
             t.start();

@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.connector.write.Write;
 
 import javax.xml.crypto.Data;
 import java.net.URI;
@@ -41,7 +42,10 @@ public class TimeSeriesUtil {
         q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
         q.setLimit(limit);
 //        StringBuilder query = new StringBuilder("select trip_distance, fare_amount, tip_amount, extra, tolls_amount, total_amount, airport_fee from tripdata limit 10");
-        return DBManager.getDataset(q.toString());
+        Dataset<Row> ret = DBManager.getDataset(q.toString());
+        WriterUtil.createProcess(Constants.DISTANCE_AMOUNT_RELATION, from, to, 0);
+        return ret;
+
     }
     public static Dataset<Row> getPassengerCountVsTipAmount(String from, String to, Integer limit){
         Query q = new Query("tripdata");
@@ -50,6 +54,7 @@ public class TimeSeriesUtil {
         q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
         q.setLimit(limit);
 //        StringBuilder query = new StringBuilder("select passenger_count, tip_amount from tripdata where to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= \'2023-06-01 00:00:00\' limit 10");
+        WriterUtil.createProcess(Constants.PASSENGER_TIP_RELATION, from, to, 0);
         return DBManager.getDataset(q.toString());
     }
 
@@ -61,11 +66,12 @@ public class TimeSeriesUtil {
 
     public static Dataset<Row> getTripDistanceVsDuration(String from, String to, Integer limit){
         Query q = new Query("tripdata");
-        q.setColumns(new String[]{"trip_distance", "to_timestamp(tpep_dropoff_datetime, \'yyyy-mm-dd HH24:mi:ss\') - to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') as duration", "total_amount"});
+        q.setColumns(new String[]{"trip_distance", "to_timestamp(tpep_dropoff_datetime, \'"+DATE_TIME_FORMAT+"\') - to_timestamp(tpep_pickup_datetime, \'"+DATE_TIME_FORMAT+"\') as duration", "total_amount"});
         q.addFilter("tpep_pickup_datetime >= \'"+ from + "\'", "and");
         q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
         q.setLimit(limit);
 //        StringBuilder query = new StringBuilder("select trip_distance, to_timestamp(tpep_dropoff_datetime, \'yyyy-mm-dd HH24:mi:ss\') - to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') as duration from tripdata limit 10");
+        WriterUtil.createProcess(Constants.DISTANCE_DURATION_RELATION, from, to, 0);
         return DBManager.getDataset(q.toString());
     }
 
