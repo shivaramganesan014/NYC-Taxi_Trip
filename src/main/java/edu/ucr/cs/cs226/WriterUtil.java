@@ -31,7 +31,7 @@ public class WriterUtil {
         String writePath = ANALYSIS_ROOT_DIR+"/"+path+"/"+analysis_id;
         deleteDir(new File(writePath));
         long x = rows.count();
-        rows.coalesce(5).write().option("header", true).csv(writePath);
+        rows.coalesce(1000).write().option("header", true).csv(writePath);
         PostActions.updateStatus(path, from, to, 1);
         PostActions.callPython();
     }
@@ -56,7 +56,7 @@ public class WriterUtil {
         q.addFilter("relation_range_start = \'"+from+"\'", "and");
         q.addFilter("relation_range_end = \'"+to+"\'", "and");
         Dataset<Row> df = DBManager.getDataset(q.toString());
-        df.show();
+//        df.show();
         return df;
     }
 

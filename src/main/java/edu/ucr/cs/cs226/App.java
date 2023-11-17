@@ -25,11 +25,22 @@ public class App
     public final static String ROOT_DOMAIN = "hdfs://localhost:9000";
     public final static String ROOT_DIR = ROOT_DOMAIN+"/input/NYC/";
 
-    public static SparkConf conf = new SparkConf().setAppName("NYC_Trips").setMaster("local");
-    public static SparkContext context = new SparkContext(conf);
-    public static Configuration config = context.hadoopConfiguration();
+//    public static SparkConf conf = new SparkConf().setAppName("NYC_Trips").setMaster("local");
+//    public static SparkContext context = new SparkContext(conf);
 
-    public static SparkSession spark = SparkSession.builder().getOrCreate();
+//    public static Configuration config = context.hadoopConfiguration();
+
+    public static SparkSession spark = SparkSession.builder()
+            .appName("NYC_Analysis")
+            .config("spark.dynamicAllocation.enabled", true)
+            .config("spark.dynamicAllocation.minExecutors","1")
+            .config("spark.dynamicAllocation.maxExecutors","5")
+            .config("spark.master", "local")
+            .config("spark.driver.memory", "5g")
+            .config("spark.executor.instances", "4")
+            .config("spark.executor.cores", "4")
+            .config("spark.executor.memory", "3g")
+            .getOrCreate();
 
     public static Properties props = new Properties();
     public static void main( String[] args )
@@ -54,7 +65,7 @@ public class App
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, null);
+                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, null).coalesce(10);
                     WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from, to);
                 }
             });
