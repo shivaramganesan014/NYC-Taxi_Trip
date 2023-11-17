@@ -8,7 +8,8 @@ public class Query {
 
     private String tableName;
 
-    private Integer limit;
+    private Long limit;
+    private Long offset;
 
     private String groupByCol;
 
@@ -66,6 +67,9 @@ public class Query {
         if(this.limit != null){
             query.append(" limit " + this.limit);
         }
+        if(this.offset != null){
+            query.append(" offset " + this.offset);
+        }
         return query.toString();
     }
 
@@ -88,8 +92,12 @@ public class Query {
         else{this.filter += " " + op + " " + filter;}
     }
 
-    public void setLimit(Integer limit){
+    public void setLimit(Long limit){
         this.limit = limit;
+    }
+
+    public void setOffset(Long offset){
+        this.offset = offset;
     }
 
     public void setGroupByCol(String groupBy){

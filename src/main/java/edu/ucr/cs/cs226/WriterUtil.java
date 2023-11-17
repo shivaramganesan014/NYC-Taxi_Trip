@@ -26,14 +26,24 @@ public class WriterUtil {
 
     private static final String ANALYSIS_ROOT_DIR = "analysis";
 
-    public static void writeToFile(Dataset<Row> rows, String path, String from, String to){
+    public static void writeToFile(Dataset<Row> rows, String path, String from, String to, long itr){
         String analysis_id = from + "@" + to;
         String writePath = ANALYSIS_ROOT_DIR+"/"+path+"/"+analysis_id;
-        deleteDir(new File(writePath));
-        long x = rows.count();
-        rows.coalesce(1000).write().option("header", true).csv(writePath);
-        PostActions.updateStatus(path, from, to, 1);
-        PostActions.callPython();
+
+        if(itr == 0){
+            deleteDir(new File(writePath));
+        }
+
+//        deleteDir(new File(writePath));
+//        long x = rows.count();
+        rows.coalesce(1000).write()
+                .option("header", true)
+                .option("fileType", "csv")
+                .mode(SaveMode.Append)
+//                .save(writePath);
+                .csv(writePath);
+//        PostActions.updateStatus(path, from, to, 1);
+//        PostActions.callPython();
     }
 
     private static boolean deleteDir(File f){

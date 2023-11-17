@@ -25,6 +25,9 @@ public class App
     public final static String ROOT_DOMAIN = "hdfs://localhost:9000";
     public final static String ROOT_DIR = ROOT_DOMAIN+"/input/NYC/";
 
+    public static final int MAX_ITERATIONS = 100;
+    public static final long BATCH_SIZE = 100000;
+
 //    public static SparkConf conf = new SparkConf().setAppName("NYC_Trips").setMaster("local");
 //    public static SparkContext context = new SparkContext(conf);
 
@@ -65,8 +68,23 @@ public class App
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, null).coalesce(10);
-                    WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from, to);
+                    long offset = 0;
+                    long currItr = 0;
+
+                    while(currItr < MAX_ITERATIONS){
+                        Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsAmount(from, to, BATCH_SIZE, offset).coalesce(10);
+                        offset += BATCH_SIZE;
+
+                        if(rows.isEmpty()){
+                            System.out.println("=====Breaking the loop as the rows is empty=====");
+                            break;
+                        }
+                        WriterUtil.writeToFile(rows, Constants.DISTANCE_AMOUNT_RELATION, from, to, currItr);
+                        currItr+=1;
+                        System.gc();
+                    }
+                    PostActions.updateStatus(Constants.DISTANCE_AMOUNT_RELATION, from, to, 1);
+                    PostActions.callPython();
                 }
             });
             t.start();
@@ -84,8 +102,26 @@ public class App
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, null);
-                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from, to);
+                    long offset = 0;
+                    long currItr = 0;
+
+                    while(currItr < MAX_ITERATIONS){
+                        Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, BATCH_SIZE, offset).coalesce(10);
+                        offset += BATCH_SIZE;
+
+                        if(rows.isEmpty()){
+                            System.out.println("=====Breaking the loop as the rows is empty=====");
+                            break;
+                        }
+                        WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from, to, currItr);
+                        currItr+=1;
+                        System.gc();
+
+                    }
+                    PostActions.updateStatus(Constants.PASSENGER_TIP_RELATION, from, to, 1);
+                    PostActions.callPython();
+//                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, null, null);
+////                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from, to);
                 }
             });
             t.start();
@@ -103,8 +139,26 @@ public class App
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, null);
-                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from, to);
+                    long offset = 0;
+                    long currItr = 0;
+
+                    while(currItr < MAX_ITERATIONS){
+                        Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, BATCH_SIZE, offset).coalesce(10);
+                        offset += BATCH_SIZE;
+
+                        if(rows.isEmpty()){
+                            System.out.println("=====Breaking the loop as the rows is empty=====");
+                            break;
+                        }
+                        WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from, to, currItr);
+                        currItr+=1;
+                        System.gc();
+
+                    }
+                    PostActions.updateStatus(Constants.DISTANCE_DURATION_RELATION, from, to, 1);
+                    PostActions.callPython();
+//                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, null, null);
+////                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from, to);
                 }
             });
             t.start();
