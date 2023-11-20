@@ -11,6 +11,7 @@ import org.apache.spark.sql.SparkSession;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -164,6 +165,44 @@ public class App
             t.start();
             return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
         });
+
+        post("/busiest_location", (request, response) -> {
+
+            JSONObject obj = new JSONObject(request.body());
+            String pickup = obj.optString("pickup");
+            boolean pu = Boolean.valueOf(pickup);
+            String year = obj.optString("year");
+            String interval = obj.optString("interval");
+            Dataset<Row> exdf = WriterUtil.getProcess(pu ? Constants.PU_BUSIEST_LOCATION : Constants.DO_BUSIEST_LOCATION, year, interval);
+            if(exdf.count() == 1){
+                return "An exisiting analysis is running for the relation for the given time range";
+            }
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Dataset<Row> df = TimeSeriesUtil.getBusiestLocation(pu, Integer.parseInt(year), interval);
+                    String analysisId = pu ? Constants.PU_BUSIEST_LOCATION : Constants.DO_BUSIEST_LOCATION;
+                    WriterUtil.writeToFile(df, analysisId, year, interval, 1);
+                    String dirName = year+"@"+interval;
+                    System.gc();
+                    PostActions.updateStatus(analysisId, year, interval, 1);
+                    if(pu){
+                        PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
+                    }
+                    else{
+                        PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
+                    }
+                    PostActions.callPython();
+                }
+            });
+            t.start();
+
+            return "Analysis started.";
+
+        });
+
+
 
 
 

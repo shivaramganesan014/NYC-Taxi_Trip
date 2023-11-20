@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.connector.write.Write;
 
@@ -28,6 +29,22 @@ public class TimeSeriesUtil {
     group by genseries
     order by genseries;
     */
+
+    /*
+
+    select pulocationid, count(pulocationid)
+from (select
+                        generate_series('2023-01-01 00:00:00', '2023-12-31 00:00:00', INTERVAL '4 month') date,
+                        generate_series('2023-02-01 00:00:00', '2024-01-01 00:00:00', INTERVAL '4 month') date2,
+                        pg_typeof(generate_series('2023-02-01 00:00:00', '2024-01-01 00:00:00', INTERVAL '4 month')) as type
+      ) as mt
+
+      join (select tpep_pickup_datetime, pulocationid from tripdata where tpep_pickup_datetime >= '2023-01-01 00:00:00' and tpep_pickup_datetime <= '2023-12-31 00:00:00') as tripdata on
+      tpep_pickup_datetime is not null and to_timestamp(tpep_pickup_datetime, 'yyyy-mm-dd HH24:mi:ss') >= to_timestamp(date::text, 'yyyy-mm-dd HH24:mi:ss') and to_timestamp(tpep_pickup_datetime, 'yyyy-mm-dd HH24:mi:ss') <= to_timestamp(date2::text, 'yyyy-mm-dd HH24:mi:ss') group by pulocationid
+;
+
+
+     */
 
     //average speed of each driver - gorup by vendor id
 
@@ -78,6 +95,53 @@ public class TimeSeriesUtil {
         return DBManager.getDataset(q.toString());
     }
 
+    public static Dataset<Row> getBusiestLocation(boolean pu, Integer year, String interval){
+//        Query q = new Query("tripdata");
+        StringBuilder q = new StringBuilder("select ");
+        String id = "pulocationid";
+        if(pu) {
+            q.append("date as range_start, date2 as range_end, pulocationid as locationid, count(pulocationid) as total");
+        }
+        else{
+            q.append("date as range_start, date2 as range_end, dolocationid as locationid, count(dolocationid) as total");
+            id = "dolocationid";
+        }
+
+        int finalYear = year+1;
+
+        String endFirstValue = nextValue(year+"-01-01 00:00:00",finalYear+"-01-01 00:00:00", interval);
+        String genSeriesQuery = "(select generate_series(\'"+year+"-01-01 00:00:00\', \'"+year+"-12-31 00:00:00\', INTERVAL \'"+interval+"\') date, generate_series(\'"+endFirstValue+"\', \'"+finalYear+"-01-01 00:00:00\', INTERVAL \'"+interval+"\') date2 ) as mt ";
+
+        q.append(" from ").append(genSeriesQuery);
+
+        q.append(" left join ");
+
+        String q2 = " tripdata on to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= date and to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') <= date2 group by date, date2, "+id + " order by date, date2";
+
+//        String q2= "(select tpep_pickup_datetime, "+id+" from tripdata where tpep_pickup_datetime >= \'"+year+"-01-01 00:00:00\' and tpep_pickup_datetime <= \'"+year+"-12-31 00:00:00\') as tripdata on tpep_pickup_datetime is not null and to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') >= to_timestamp(date::text, \'yyyy-mm-dd HH24:mi:ss\') and to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\') <= to_timestamp(date2::text, \'yyyy-mm-dd HH24:mi:ss\') group by " + id;
+
+        q.append(q2);
+        WriterUtil.createProcess(pu ? Constants.PU_BUSIEST_LOCATION : Constants.DO_BUSIEST_LOCATION, year+"", interval, 0);
+        return DBManager.getDataset(q.toString());
+    }
+
+    private static String nextValue(String start, String end, String interval){
+
+        String q = "select * from generate_series(\'"+start+"\', \'"+end+"\', INTERVAL \'"+interval+"\') as date limit 1 offset 1";
+//        Dataset<Row> d = App.spark.sql(q);
+//        return d.toString();
+        Dataset<Row> d = App.spark.read()
+                .format("jdbc")
+                .option("url", DBManager.POSTGRESQL_URL)
+//                .option("dbtable", "\"TripData\"")
+                .option("user", "shiva")
+                .option("password", "shiva")
+                .option("query", q)
+                .load();
+
+
+        return d.as(Encoders.STRING()).collectAsList().get(0);
+    }
 //    public static Dataset<Row> getInRange(String col, String from, String to){
 //        //date format: yyyy-mm-dd hh:mm:ss
 //        int fromYear = getYear(from);

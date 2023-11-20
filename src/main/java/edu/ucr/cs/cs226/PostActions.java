@@ -18,7 +18,17 @@ public class PostActions {
 
         WriterUtil.createProcess(relation, from, to, 1);
 
+    }
 
+    public static void updateCoordinates(String path){
+        try{
+            String command = "python3 scripts/update_coordinates.py "+path;
+            System.out.println(command);
+            Runtime.getRuntime().exec(command);
+        }
+        catch (Exception e){
+            System.out.println("Error executing python file " + e.getLocalizedMessage());
+        }
     }
 
 

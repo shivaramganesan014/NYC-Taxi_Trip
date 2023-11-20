@@ -1,2 +1,2 @@
 import os
-# os.system('say "your program has finished"')
+os.system('say "your program has finished"')
