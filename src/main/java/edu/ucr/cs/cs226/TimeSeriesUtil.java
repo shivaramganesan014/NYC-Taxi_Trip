@@ -50,8 +50,23 @@ from (select
 
     // group by location to find hotspot regions - pickup and dropoff
 
+
     public static final String DATE_TIME_FORMAT = "yyyy-mm-dd HH24:mi:ss";
 
+    public static Dataset<Row> getAverageTipDistanceByYear(Integer year){
+        Dataset<Row> ret = null;
+        if(year == null){
+            String query = "select to_char(to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\')::timestamp, \'DAY\') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from tripdata where fare_amount > 0 group by day";
+            ret = DBManager.getDataset(query);
+            WriterUtil.createProcess(Constants.AVG_TIP_DISTANCE, "full", "full", 0);
+        }
+        else{
+            String query = "select to_char(to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\')::timestamp, \'DAY\') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from (select * from tripdata where tpep_pickup_datetime >= \'"+year+"-01-01\' and tpep_pickup_datetime <= \'"+year+"-31-12\' and fare_amount > 0) as temp group by day";
+            ret = DBManager.getDataset(query);
+            WriterUtil.createProcess(Constants.AVG_TIP_DISTANCE, year+"", year+"", 0);
+        }
+        return ret;
+    }
     public static Dataset<Row> getTripDistanceVsAmount(String from, String to, Long limit, Long offset){
         Query q = new Query("tripdata");
         q.setColumns(new String[]{"trip_distance", "fare_amount", "tip_amount", "extra", "tolls_amount", "total_amount", "airport_fee", "improvement_surcharge", "congestion_surcharge", "mta_tax"});

@@ -202,6 +202,39 @@ public class App
 
         });
 
+        post("/avgTipDistance", (request, response) -> {
+            JSONObject obj = new JSONObject(request.body());
+            String year = obj.optString("year");
+            Integer inYear = year.isEmpty() ? null : Integer.parseInt(year);
+            String tempAnalysisId = inYear == null ? "full" : year;
+            Dataset<Row> exdf = WriterUtil.getProcess(Constants.AVG_TIP_DISTANCE, tempAnalysisId, tempAnalysisId);
+            if(exdf.count() == 1){
+                return "An exisiting analysis is running for the relation for the given time range";
+            }
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    Dataset<Row> df = TimeSeriesUtil.getAverageTipDistanceByYear(inYear);
+                    WriterUtil.writeToFile(df, Constants.AVG_TIP_DISTANCE, inYear == null ? "full" : year, inYear == null ? "full" : year, 1);
+                    String dirName = tempAnalysisId+"@"+tempAnalysisId;
+                    System.gc();
+                    PostActions.updateStatus(Constants.AVG_TIP_DISTANCE, tempAnalysisId, tempAnalysisId, 1);
+//                    PostActions.performTipDistanceAnalysis(dirName);
+//                    if(pu){
+//                        PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
+//                    }
+//                    else{
+//                        PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
+//                    }
+                    PostActions.callPython();
+                }
+            });
+            t.start();
+
+            return "Analysis started";
+        });
+
 
 
 
