@@ -140,6 +140,19 @@ from (select
         return DBManager.getDataset(q.toString());
     }
 
+    public static Dataset<Row> getAverageAnalysis(Integer year){
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT extract(hour from gs) AS hour_timestamp, AVG(tempdata.trip_distance) AS avg_trip_distance, AVG(tempdata.tip_amount) AS avg_tip_amount FROM ");
+        query.append(" generate_series(\'2021-01-01\'::timestamp, \'2021-01-01\'::timestamp + \'24 hours\'::interval, \'1 hour\'::interval) AS gs ");
+        query.append(" LEFT JOIN (SELECT extract(hour from tpep_pickup_datetime::timestamp) pickup_hour, trip_distance, tpep_pickup_datetime, tip_amount, fare_amount FROM tripdata ");
+        if(year != null){
+            query.append(" where tpep_pickup_datetime >= \'"+year+"-01-01\' AND tpep_pickup_datetime <= \'"+year+"-12-31\' ");
+        }
+        query.append(" ) AS tempdata ON extract(hour from (tempdata.tpep_pickup_datetime)::timestamp) = extract(hour from gs) GROUP BY hour_timestamp ORDER BY hour_timestamp ");
+        WriterUtil.createProcess(Constants.AVG_ANALYSIS, year == null ? "full" : year+"", year==null ? "full" : year+"", 0);
+        return DBManager.getDataset(query.toString());
+    }
+
     private static String nextValue(String start, String end, String interval){
 
         String q = "select * from generate_series(\'"+start+"\', \'"+end+"\', INTERVAL \'"+interval+"\') as date limit 1 offset 1";

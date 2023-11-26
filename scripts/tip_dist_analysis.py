@@ -12,17 +12,57 @@ colors = ['red', 'green', 'blue', 'maroon', 'orange']
 
 def getValues(filepath):
 	li = {}
+	li2 = {}
 	for f in os.listdir(filepath):
 		if(f in validFiles):
 			for fi in os.listdir(filepath+"/"+f):
 				if(fi.endswith(".csv")):
 					df = pd.read_csv(filepath+"/"+f+"/"+fi)
 					li[f] = list(df["average_distance"])
+					li2[f] = list(df["average_tip"])
 					# li.append({f: list(df["average_distance"])})
 					# files.append(f)
 					break
 	# return (li,files)
-	return li
+	return (li, li2)
+
+def save(data, name):
+	days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+	x = np.arange(len(days))
+	width = 0.25
+	multiplier = 0
+	fig, ax = plt.subplots(layout='constrained')
+
+	yLim = 10
+
+	fig.set_figheight(5)
+	fig.set_figwidth(10)
+	for attribute, values in sorted(data.items()):
+		offset = width * multiplier
+		yLim = max(yLim, max(values))
+		rects = ax.bar(x + offset, values, width, label=attribute)
+		ax.bar_label(rects, padding=3)
+		multiplier += 1
+
+	yLabel = "tip amount percentage"
+	title = "Tip amount analysis"
+	if(name == "avg_dist"):
+		yLabel = "distance in miles"
+		title = "Distance analysis"
+
+	ax.set_ylabel(yLabel)
+	ax.set_title(title)
+	ax.set_xticks(x + width, days)
+
+	ax.legend(loc = 'upper left', ncols = 3)
+	ax.set_ylim(0, yLim+2)
+
+	if not os.path.exists("./analysis/plot"):
+		print("creating dir")
+		os.makedirs('./analysis/plot')
+	print("saving file")
+	print(os.getcwd())
+	fig.savefig("./analysis/plot/"+name+".png")
 
 def analyse(filepath):
 
@@ -41,38 +81,30 @@ def analyse(filepath):
 	# 		plt.title("Tip analysis")
 	# 		plt.show()
 	# 		break
-	li = getValues(rootDir)
+	avgDist, avgTip = getValues(rootDir)
 	# print(li)
 	# print(files)
 	# print(len(li))
-	days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
-
-	# print(li)
-
-
-	x = np.arange(len(days))
-	width = 0.25
-	multiplier = 0
 
 	# plt.figure().set_figheight(25)
 	# plt.figure().set_figwidth(100)
 
-	fig, ax = plt.subplots(layout='constrained')
+	save(avgDist, "avg_dist")
+	save(avgTip, "avg_tip")
 
-	fig.set_figheight(5)
-	fig.set_figwidth(10)
+	# for attribute, values in sorted(avgDist.items()):
+	# 	offset = width * multiplier
+	# 	rects = ax.bar(x + offset, values, width, label=attribute)
+	# 	ax.bar_label(rects, padding=3)
+	# 	multiplier += 1
 
-	for attribute, values in sorted(li.items()):
-		offset = width * multiplier
-		rects = ax.bar(x + offset, values, width, label=attribute)
-		ax.bar_label(rects, padding=3)
-		multiplier += 1
+	# ax.set_ylabel("tip amount percentage")
+	# ax.set_title("Tip amount analysis")
+	# ax.set_xticks(x + width, days)
+	# ax.legend(loc = 'upper left', ncols = 3)
+	# ax.set_ylim(0, 10)
 
-	ax.set_ylabel("tip amount percentage")
-	ax.set_title("Tip amount analysis")
-	ax.set_xticks(x + width, days)
-	ax.legend(loc = 'upper left', ncols = 3)
-	ax.set_ylim(0, 10)
+
 	# plt.show()
 
 	# plt.figure(figsize=(20,10)) 
@@ -95,12 +127,14 @@ def analyse(filepath):
 	# plt.legend(bars, tuple(files))
 	# # plt.show()
 	# # plt.plot()
-	if not os.path.exists("./analysis/plot"):
-		print("creating dir")
-		os.makedirs('./analysis/plot')
-	print("saving file")
-	print(os.getcwd())
-	fig.savefig("./analysis/plot/tip_distance.png")
+
+
+	# if not os.path.exists("./analysis/plot"):
+	# 	print("creating dir")
+	# 	os.makedirs('./analysis/plot')
+	# print("saving file")
+	# print(os.getcwd())
+	# fig.savefig("./analysis/plot/tip_distance.png")
 
 
 

@@ -57,6 +57,31 @@ public class App
 
         props.setProperty("Driver", "org.postgresql.Driver");
 
+        post("/avg_tip_distance_analysis", (request, response) -> {
+            JSONObject obj = new JSONObject(request.body());
+            String year = obj.optString("year");
+            Integer inYear = year.isEmpty() ? null : Integer.parseInt(year);
+            String tempAnalysisId = inYear == null ? "full" : year;
+            Dataset<Row> exdf = WriterUtil.getProcess(Constants.AVG_ANALYSIS, tempAnalysisId, tempAnalysisId);
+            if(exdf.count() == 1){
+                return "An existing analysis for the given relation is running";
+            }
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Dataset<Row> df = TimeSeriesUtil.getAverageAnalysis(inYear);
+                    WriterUtil.writeToFile(df, Constants.AVG_ANALYSIS, year==null ? "full" : year+"", year==null ? "full" : year+"", 1);
+                    PostActions.updateStatus(Constants.DISTANCE_AMOUNT_RELATION, year==null ? "full" : year+"", year==null ? "full" : year+"", 1);
+                    PostActions.callPython();
+                }
+            });
+            t.start();
+
+            return "analysis started";
+
+        });
+
 
         post("/distance_amount_analysis", (request, response) -> {
             JSONObject obj = new JSONObject(request.body());
