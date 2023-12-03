@@ -8,11 +8,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.connector.write.Write;
-
-import javax.xml.crypto.Data;
-import java.net.URI;
-import java.util.List;
-
 public class TimeSeriesUtil {
 //    Total distance in each month
 //    select sum(trip_distance) as total_distance, extract(month from to_timestamp(tpep_pickup_datetime, 'yyyy-mm-dd HH24:mi:ss')) as month from tripdata group by month limit 10;
@@ -57,11 +52,13 @@ from (select
         Dataset<Row> ret = null;
         if(year == null){
             String query = "select to_char(to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\')::timestamp, \'DAY\') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from tripdata where fare_amount > 0 group by day";
+            //select to_char(tpep_pickup_datetime, 'DAY') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from dummy where fare_amount > 0 group by day
             ret = DBManager.getDataset(query);
             WriterUtil.createProcess(Constants.AVG_TIP_DISTANCE, "full", "full", 0);
         }
         else{
             String query = "select to_char(to_timestamp(tpep_pickup_datetime, \'yyyy-mm-dd HH24:mi:ss\')::timestamp, \'DAY\') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from (select * from tripdata where tpep_pickup_datetime >= \'"+year+"-01-01\' and tpep_pickup_datetime <= \'"+year+"-31-12\' and fare_amount > 0) as temp group by day";
+//            select to_char(tpep_pickup_datetime, 'DAY') as day, avg(tip_amount/fare_amount)*100 as average_tip, avg(trip_distance) as average_distance from (select * from dummy where tpep_pickup_datetime::DATE >= '2023-01-01'::DATE and (tpep_pickup_datetime)::DATE <= ('2023-12-31')::DATE and fare_amount > 0) as temp group by day;
             ret = DBManager.getDataset(query);
             WriterUtil.createProcess(Constants.AVG_TIP_DISTANCE, year+"", year+"", 0);
         }
@@ -74,6 +71,7 @@ from (select
         q.addFilter("tpep_pickup_datetime <= \'" + to + "\'", "and");
         q.setLimit(limit);
         q.setOffset(offset);
+//        select * from dummy where tpep_pickup_datetime >= '2023-01-01 00:00:00'::TIMESTAMP and tpep_pickup_datetime <= '2023-12-31 00:00:00'::TIMESTAMP;
 //        StringBuilder query = new StringBuilder("select trip_distance, fare_amount, tip_amount, extra, tolls_amount, total_amount, airport_fee from tripdata limit 10");
         Dataset<Row> ret = DBManager.getDataset(q.toString());
         WriterUtil.createProcess(Constants.DISTANCE_AMOUNT_RELATION, from, to, 0);
