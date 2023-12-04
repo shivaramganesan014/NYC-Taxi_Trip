@@ -13,9 +13,9 @@ def poly(val):
   except:
     return None
 
-poi_data = gpd.read_file("../../../NYC/Point_Of_Interest.csv")
+poi_data = gpd.read_file("../additional_data/Point_Of_Interest.csv")
 busiest_loc_data = gpd.read_file("../analysis/pu_busiest_location/2021@4 month/busiest_t.csv")
-shpfile = gpd.read_file("../../../NYC/taxi_zones/taxi_zones.shp")
+shpfile = gpd.read_file("../additional_data/taxi_zones/taxi_zones.shp")
 
 poi_data.geometry = poi_data["the_geom"].apply(loads)
 
