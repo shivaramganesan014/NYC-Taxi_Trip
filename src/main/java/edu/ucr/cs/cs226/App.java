@@ -58,6 +58,7 @@ public class App
         props.setProperty("Driver", "org.postgresql.Driver");
 
         post("/avg_tip_distance_analysis", (request, response) -> {
+            String key = "avg_tip_distance_analysis";
             JSONObject obj = new JSONObject(request.body());
             String year = obj.optString("year");
             Integer inYear = year.isEmpty() ? null : Integer.parseInt(year);
@@ -73,17 +74,16 @@ public class App
                     Dataset<Row> df = TimeSeriesUtil.getAverageAnalysis(inYear);
                     WriterUtil.writeToFile(df, Constants.AVG_ANALYSIS, year==null ? "full" : year+"", year==null ? "full" : year+"", 1);
                     PostActions.updateStatus(Constants.DISTANCE_AMOUNT_RELATION, year==null ? "full" : year+"", year==null ? "full" : year+"", 1);
-                    PostActions.callPython();
+                    PostActions.callPython(key);
                 }
             });
             t.start();
-
-            return "analysis started";
-
+            return "Analysis started";
         });
 
 
         post("/distance_amount_analysis", (request, response) -> {
+            String key = "distance_amount_analysis";
             JSONObject obj = new JSONObject(request.body());
             String from = obj.optString("from");
             String to = obj.optString("to");
@@ -110,14 +110,16 @@ public class App
                         System.gc();
                     }
                     PostActions.updateStatus(Constants.DISTANCE_AMOUNT_RELATION, from, to, 1);
-                    PostActions.callPython();
+                    PostActions.callPython(key);
                 }
             });
             t.start();
-            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.DISTANCE_AMOUNT_RELATION);
+            return "Analysis started";
+//            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.DISTANCE_AMOUNT_RELATION);
         });
 
         post("/count_tip_analysis", (request, response) -> {
+            String key = "count_tip_analysis";
             JSONObject obj = new JSONObject(request.body());
             String from = obj.optString("from");
             String to = obj.optString("to");
@@ -145,16 +147,18 @@ public class App
 
                     }
                     PostActions.updateStatus(Constants.PASSENGER_TIP_RELATION, from, to, 1);
-                    PostActions.callPython();
+                    PostActions.callPython(key);
 //                    Dataset<Row> rows = TimeSeriesUtil.getPassengerCountVsTipAmount(from, to, null, null);
 ////                    WriterUtil.writeToFile(rows, Constants.PASSENGER_TIP_RELATION, from, to);
                 }
             });
             t.start();
-            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
+            return "Analysis started";
+//            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
         });
 
         post("/distance_duration_relation", (request, response) -> {
+            String key = "distance_duration_relation";
             JSONObject obj = new JSONObject(request.body());
             String from = obj.optString("from");
             String to = obj.optString("to");
@@ -182,17 +186,18 @@ public class App
 
                     }
                     PostActions.updateStatus(Constants.DISTANCE_DURATION_RELATION, from, to, 1);
-                    PostActions.callPython();
+                    PostActions.callPython(key);
 //                    Dataset<Row> rows = TimeSeriesUtil.getTripDistanceVsDuration(from, to, null, null);
 ////                    WriterUtil.writeToFile(rows, Constants.DISTANCE_DURATION_RELATION, from, to);
                 }
             });
             t.start();
-            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
+            return "Analysis started";
+//            return "content will be written to "+Constants.FILE_PATH_MAP.get(Constants.PASSENGER_TIP_RELATION);
         });
 
         post("/busiest_location", (request, response) -> {
-
+            String key = "busiest_location";
             JSONObject obj = new JSONObject(request.body());
             String pickup = obj.optString("pickup");
             boolean pu = Boolean.valueOf(pickup);
@@ -218,7 +223,7 @@ public class App
                     else{
                         PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
                     }
-                    PostActions.callPython();
+                    PostActions.callPython(key);
                 }
             });
             t.start();
@@ -228,6 +233,7 @@ public class App
         });
 
         post("/avgTipDistance", (request, response) -> {
+            String key = "avgTipDistance";
             JSONObject obj = new JSONObject(request.body());
             String year = obj.optString("year");
             Integer inYear = year.isEmpty() ? null : Integer.parseInt(year);
@@ -252,7 +258,7 @@ public class App
 //                    else{
 //                        PostActions.updateCoordinates("analysis/"+analysisId+"/"+dirName+"/");
 //                    }
-                    PostActions.callPython();
+                    PostActions.callPython(key);
                 }
             });
             t.start();

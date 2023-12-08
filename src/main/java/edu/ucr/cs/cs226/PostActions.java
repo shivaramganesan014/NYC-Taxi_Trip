@@ -58,10 +58,15 @@ public class PostActions {
     }
 
 
-    public static void callPython(){
+    public static void callPython(String key){
         try{
-            String command = "python3 scripts/index.py";
-            Runtime.getRuntime().exec(command);
+            List<String> execList = Constants.EXEC_LIST.get(key);
+            for(String script : execList){
+                String command = "python3 scripts/"+script;
+                Runtime.getRuntime().exec(command);
+            }
+//            String command = "python3 scripts/index.py";
+//            Runtime.getRuntime().exec(command);
         }
         catch (Exception e){
             System.out.println("Error executing python file " + e.getLocalizedMessage());

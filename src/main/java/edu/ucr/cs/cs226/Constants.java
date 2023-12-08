@@ -1,6 +1,8 @@
 package edu.ucr.cs.cs226;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Constants {
 
@@ -21,4 +23,19 @@ public class Constants {
         put(AVG_TIP_DISTANCE, AVG_TIP_DISTANCE);
         put(AVG_ANALYSIS, AVG_ANALYSIS);
     }};
+
+    public static final List<String> TRIP_DIST = new ArrayList(){{
+        add("average_analysis.py");
+        add("tdanalysis.py");
+    }};
+
+    public static final List<String> BUSY_LOC = new ArrayList(){{
+        add("heatmap.py");
+        add("topk_busiest_plot.py");
+    }};
+    public static final HashMap<String, List<String>> EXEC_LIST = new HashMap<String, List<String>>(){{
+        put("avg_tip_distance_analysis", TRIP_DIST);
+        put("distance_amount_analysis", TRIP_DIST);
+        put("busiest_location", BUSY_LOC);
+    }} ;
 }

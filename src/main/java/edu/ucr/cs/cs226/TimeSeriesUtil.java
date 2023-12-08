@@ -125,7 +125,7 @@ from (select
         String endFirstValue = nextValue(year+"-01-01 00:00:00",finalYear+"-01-01 00:00:00", interval);
         String genSeriesQuery = "(select generate_series(\'"+year+"-01-01 00:00:00\', \'"+year+"-12-31 00:00:00\', INTERVAL \'"+interval+"\') date, generate_series(\'"+endFirstValue+"\', \'"+finalYear+"-01-01 00:00:00\', INTERVAL \'"+interval+"\') date2 ) as mt ";
 
-        q.append(" from ").append(genSeriesQuery);
+            q.append(" from ").append(genSeriesQuery);
 
         q.append(" left join ");
 
