@@ -1,0 +1,51 @@
+/* Style for the dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .rowShortBarChar {
+    flex-direction: row;
+    display: flex;
+  }
+
+  .alignEnd {
+    margin-left: 80%;
+    margin-bottom: 30px;
+  }
+  
+  /* Style for the button that toggles the dropdown */
+  .dropdown button {
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Style for the dropdown content */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+  
+  /* Style for each dropdown item */
+  .dropdown-content div {
+    padding: 12px;
+    cursor: pointer;
+  }
+  
+  /* Highlight the dropdown item on hover */
+  .dropdown-content div:hover {
+    background-color: #ddd;
+  }
+  
+  /* Show the dropdown content when the dropdown is open */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  

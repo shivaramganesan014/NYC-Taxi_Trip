@@ -1,0 +1,113 @@
+{
+  "2021": [
+    {
+      "day": "MONDAY",
+      "average_tip": 20.898713883533908,
+      "average_distance": 7.158984646856776
+    },
+    {
+      "day": "TUESDAY",
+      "average_tip": 21.622040332771597,
+      "average_distance": 7.168780812687068
+    },
+    {
+      "day": "WEDNESDAY",
+      "average_tip": 20.69391500697267,
+      "average_distance": 6.554100030261708
+    },
+    {
+      "day": "THURSDAY",
+      "average_tip": 21.81575441176318,
+      "average_distance": 6.808192785325613
+    },
+    {
+      "day": "FRIDAY",
+      "average_tip": 21.046289279790344,
+      "average_distance": 7.176004680513599
+    },
+    {
+      "day": "SATURDAY",
+      "average_tip": 22.16139888779274,
+      "average_distance": 6.730261864918076
+    },
+    {
+      "day": "SUNDAY",
+      "average_tip": 20.704546091380752,
+      "average_distance": 6.86390600536365
+    }
+  ],
+  "2022": [
+    {
+      "day": "MONDAY",
+      "average_tip": 22.843004517376496,
+      "average_distance": 6.213089629667016
+    },
+    {
+      "day": "TUESDAY",
+      "average_tip": 22.706509728543374,
+      "average_distance": 5.667919460888695
+    },
+    {
+      "day": "WEDNESDAY",
+      "average_tip": 21.708807372089492,
+      "average_distance": 6.0775956052265325
+    },
+    {
+      "day": "THURSDAY",
+      "average_tip": 22.70853488740842,
+      "average_distance": 5.658715026551415
+    },
+    {
+      "day": "FRIDAY",
+      "average_tip": 22.31577320644448,
+      "average_distance": 6.123312650310891
+    },
+    {
+      "day": "SATURDAY",
+      "average_tip": 22.86284426249195,
+      "average_distance": 5.954065825989811
+    },
+    {
+      "day": "SUNDAY",
+      "average_tip": 22.695440393886717,
+      "average_distance": 6.091947290599376
+    }
+  ],
+  "2023": [
+    {
+      "day": "MONDAY",
+      "average_tip": 22.058275188182048,
+      "average_distance": 4.491378578318075
+    },
+    {
+      "day": "TUESDAY",
+      "average_tip": 22.640797285625915,
+      "average_distance": 4.131082461455364
+    },
+    {
+      "day": "WEDNESDAY",
+      "average_tip": 22.07062613015379,
+      "average_distance": 3.929585863852575
+    },
+    {
+      "day": "THURSDAY",
+      "average_tip": 22.326227212201168,
+      "average_distance": 4.103951182762545
+    },
+    {
+      "day": "FRIDAY",
+      "average_tip": 22.05631333617953,
+      "average_distance": 4.204086109549867
+    },
+    {
+      "day": "SATURDAY",
+      "average_tip": 21.106870198347657,
+      "average_distance": 3.983017093582754
+    },
+    {
+      "day": "SUNDAY",
+      "average_tip": 24.39117912851439,
+      "average_distance": 4.6670065712366355
+    }
+  ]
+}
